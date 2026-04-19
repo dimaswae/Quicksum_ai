@@ -1,0 +1,11 @@
+@import "tailwindcss";
+
+:root {
+  background-color: #0f0821; /* Background gelap khas Figma lo */
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  color: white;
+}
