@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+    app:
+        build: .
+        container_name: summary_backend_app
+        ports: 
+            - "3000:3000"
+        volumes:
+            - .:/app
+            - /app/node_modules
+        environment:
+            - DB_HOST=db
+            - DB_USER=root
+            - DB_PASSWORD=ruvco@56^Rosmarry
+            - DB_NAME=project_summary # Pastikan DB_NAME (bukan DB_NAMA) sesuai .env
+            - DB_PORT=3306
+        # --- TAMBAHAN PENTING UNTUK INTEGRASI AI ---
+        extra_hosts:
+            - "host.docker.internal:host-gateway" # Mengizinkan Docker akses port 8000 di luar kontainer
+        # ------------------------------------------
+        depends_on:
+            - db
+        command: npm run dev
+        
+    db:
+        image: mysql:8.0
+        container_name: project_summary_db
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: ruvco@56^Rosmarry
+            MYSQL_DATABASE: project_summary
+        ports:
+            - "3306:3306"
+        volumes:
+            - db_data:/var/lib/mysql
+        
+volumes:
+    db_data:
