@@ -49,7 +49,7 @@ export default function useSummarize() {
     startStagedMessages();
 
     try {
-      const response = await api.post('/api/summary', { text, length });
+      const response = await api.post('/api/summarize', { text, length });
       setResult(response.data.summary);
     } catch (err) {
       setError(err.message);

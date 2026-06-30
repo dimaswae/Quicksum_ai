@@ -1,181 +1,136 @@
-# AGENTS.md — QuickSum.AI
+﻿# AGENTS.md — QuickSum.AI
 
-Dokumen ini memberi konteks proyek untuk AI coding agent (OpenCode) agar perubahan kode konsisten dengan arsitektur, konvensi, dan kondisi aktual proyek.
-
----
-
-## Ringkasan Proyek
-
-QuickSum.AI adalah aplikasi web *abstractive text summarization* berbasis GLM-4.5-Air API (z.ai). Pengguna dapat mengetik/menempel teks, mengunggah dokumen (.txt/.pdf), memilih panjang ringkasan, dan mendapat hasil secara instan.
-
-Dikembangkan dengan metodologi Scrum (8 sprint, 2 minggu/sprint) oleh tim 5 orang.
+This file gives AI coding agents a concise project map and the conventions they should follow.
 
 ---
 
-## Arsitektur Target
+## Project overview
 
-Pola **client-server**, tiga layanan terpisah:
+QuickSum.AI is a three-service application:
+- Frontend: React + Vite + Tailwind
+- Node backend: Express.js + Sequelize (MySQL/MariaDB)
+- AI backend: FastAPI + z.ai GLM-4.5-Air
 
-```
-Browser (React)
-  └─→ POST /api/summary  →  node-backend (Express.js)
-                                └─→ POST /summarize  →  ai-backend (FastAPI + GLM-4.5-Air)
-                                                            └─→ z.ai API
-```
-
-| Layanan | Teknologi | Status | Hosting Target |
-|---|---|---|---|
-| Frontend | React + Vite | 🔴 Skeleton | Vercel |
-| node-backend | Express.js + MongoDB | 🟢 Lengkap | Railway |
-| ai-backend | FastAPI (Python) + GLM | 🟢 Lengkap | Railway |
+User flow:
+- browser → frontend
+- frontend → `POST /api/summary` on node backend
+- node backend → `POST /summarize` on AI backend
+- AI backend → z.ai API
 
 ---
 
-## Kondisi Aktual (per 2026-06-29)
+## Current status
 
-### Frontend (`frontend/src/`)
-
-```
-frontend/src/
-  App.jsx          ← entry point, belum ada routing/komponen
-  main.jsx         ← Vite entry
-  styles/
-    App.css
-    index.css
-  assets/
-    hero.png
-    react.svg
-    vite.svg
-```
-
-**Komponen belum dibuat sama sekali.** Target struktur yang harus dibangun:
-
-```
-frontend/src/
-  components/
-    SummarizeForm.jsx     ← input teks + pilihan panjang + submit
-    FileUpload.jsx        ← upload .txt/.pdf, validasi UI
-    OutputArea.jsx        ← tampilan hasil + tombol copy
-    LoadingSpinner.jsx    ← feedback saat request berjalan
-    ToastNotification.jsx ← feedback error/sukses
-    ThemeToggle.jsx       ← light/dark mode
-  hooks/
-    useSummarize.js       ← logic request ke node-backend
-    useClipboard.js       ← copy-to-clipboard
-  services/
-    api.js                ← instance Axios terkonfigurasi
-  styles/
-    App.css               ← sudah ada
-    index.css             ← sudah ada
-```
-
-### node-backend (`backend/node-backend/`)
-
-```
-server.js
-config/database.js
-controllers/  authController.js, historyController.js, modelController.js, summaryController.js
-middlewares/  authMiddleware.js, errorMiddleware.js, validateMiddleware.js
-models/       AI_Model.js, History.js, Summary.js, Text.js, User.js
-routes/       authRoutes.js, historyRoutes.js, modelRoutes.js, summaryRoutes.js, index.js
-services/     aiService.js          ← proxy ke ai-backend
-utils/        logger.js, responseHandler.js
-```
-
-Status: **sudah lengkap**, belum diintegrasikan dengan frontend.
-
-### ai-backend (`backend/ai-backend/`)
-
-```
-run.py
-app/
-  main.py
-  core/config.py
-  models/schema.py
-  routes/summarize.py
-  services/ai_service.py   ← memanggil GLM-4.5-Air API
-requirements.txt
-```
-
-Status: **sudah lengkap**, menerima request dari node-backend.
+- Frontend is the main gap: UI exists, but validation, backend integration, and user feedback need polish.
+- Node backend exists and should be consumed by the frontend through the existing contract.
+- AI backend should only be modified through `backend/ai-backend/app/` routing and service code.
 
 ---
 
-## Environment Variables
-
-### ai-backend (`.example.env` → `.env`)
-- `GLM_API_KEY` — API key z.ai, **jangan pernah hardcode**
-
-### node-backend (`.env.example` → `.env`)
-- `AI_BACKEND_URL` — URL ai-backend (Railway)
-- `MONGODB_URI` — koneksi database
-- `JWT_SECRET` — untuk auth middleware
-
-### frontend (`Vercel` env / `.env.local`)
-- `VITE_API_BASE_URL` — base URL node-backend (Railway)
-
----
-
-## Prioritas Development Sekarang
-
-> **Frontend adalah bottleneck.** Backend sudah jalan. Fokus ke membangun komponen React dan menyambungkannya ke node-backend.
-
-### Urutan build yang disarankan:
-
-1. **`services/api.js`** — setup Axios instance dengan `VITE_API_BASE_URL`
-2. **`hooks/useSummarize.js`** — POST ke `/api/summary`, kelola loading/error state
-3. **`components/SummarizeForm.jsx`** — form utama (textarea + select panjang + submit)
-4. **`components/OutputArea.jsx`** — tampilkan hasil ringkasan
-5. **`components/LoadingSpinner.jsx`** + **`ToastNotification.jsx`** — UX feedback
-6. **`components/FileUpload.jsx`** — upload file dengan validasi
-7. **`hooks/useClipboard.js`** + **`components/ThemeToggle.jsx`** — polish
-
----
-
-## Konvensi Kode
+## Essential files
 
 ### Frontend
-- Functional component, satu file per komponen di `src/components/`
-- Logic reusable → custom hooks di `src/hooks/`, bukan inline di komponen
-- Semua HTTP request lewat `src/services/api.js` (Axios), **jangan `fetch` langsung di komponen**
-- CSS: pertahankan token tema di `index.css` agar `ThemeToggle` berfungsi
-- Ikuti design system di `MASTER.md` (warna, spacing, typography, komponen spec)
+- `vite.config.js`
+- `package.json`
+- `frontend/index.html`
+- `frontend/src/main.jsx`
+- `frontend/src/App.jsx`
+- `frontend/src/services/api.js`
+- `frontend/src/hooks/useSummarize.js`
+- `frontend/src/hooks/useClipboard.js`
+- `frontend/src/components/SummarizeForm.jsx`
+- `frontend/src/components/FileUpload.jsx`
+- `frontend/src/components/OutputArea.jsx`
+- `frontend/src/components/LoadingSpinner.jsx`
+- `frontend/src/components/ToastNotification.jsx`
+- `frontend/src/components/ThemeToggle.jsx`
+- `frontend/src/styles/index.css`
+- `frontend/src/styles/App.css`
 
-### node-backend
-- Pola MVC: `routes/` → `controllers/` → `services/`
-- Business logic di `services/`, bukan di `routes/` atau `controllers/`
-- Error handling terpusat lewat `middlewares/errorMiddleware.js`
-- Response format konsisten lewat `utils/responseHandler.js`
+### Node backend
+- `backend/node-backend/server.js`
+- `backend/node-backend/routes/summaryRoutes.js`
+- `backend/node-backend/controllers/summaryController.js`
+- `backend/node-backend/services/aiService.js`
+- `backend/node-backend/middlewares/validateMiddleware.js`
+- `backend/node-backend/utils/responseHandler.js`
 
-### ai-backend
-- Routing di `app/routes/`, logic di `app/services/ai_service.py`
-- Config via `app/core/config.py`, bukan hardcode
-
----
-
-## Aturan Keamanan (jangan dilanggar)
-
-- API key GLM **hanya** di `.env` ai-backend, tidak pernah di frontend atau node-backend kode
-- CORS node-backend: hanya domain frontend Vercel yang terdaftar
-- Validasi input: teks minimum 50 karakter, file hanya `.txt`/`.pdf`, maksimum 5MB
-- Sanitasi input sebelum dikirim ke ai-backend (cegah prompt injection)
-- Rate limiting endpoint summary: 20 req/menit per IP
-- Timeout ke ai-backend: 30 detik, retry 1 kali
-
----
-
-## Batasan
-
-- **Jangan** mengubah kontrak endpoint tanpa koordinasi antar layanan
-- **Jangan** hardcode API key, URL, atau secret — selalu via environment variable
-- **Jangan** taruh business logic di `routes/`
-- Perubahan UI harus tetap responsif (mobile-first) dan tidak merusak alur file upload / loading state
-- Ikuti design system `MASTER.md` untuk semua perubahan visual
+### AI backend
+- `backend/ai-backend/run.py`
+- `backend/ai-backend/app/main.py`
+- `backend/ai-backend/app/routes/summarize.py`
+- `backend/ai-backend/app/services/ai_service.py`
+- `backend/ai-backend/app/core/config.py`
 
 ---
 
-## Testing
+## API contract
 
-- Setelah perubahan frontend: `npm run dev` di `/frontend`, verifikasi manual input teks → submit → lihat hasil
-- API testing: Postman ke node-backend, pastikan response format konsisten
-- File upload: test dengan `.txt` dan `.pdf` valid, test juga file >5MB (harus ditolak)
+- Frontend should POST to `/api/summary` with JSON body:
+  - `text` (string)
+  - `length` (string or number)
+- Keep frontend requests in `frontend/src/services/api.js`.
+- Do not change the request/response schema without coordination.
+
+---
+
+## Environment variables
+
+- Frontend: `VITE_API_BASE_URL`
+- Node backend: `AI_BACKEND_URL`, `MONGODB_URI`, `JWT_SECRET`
+- AI backend: `GLM_API_KEY`
+
+> Do not hardcode secrets or API keys in source code.
+
+---
+
+## Conventions
+
+### Frontend
+- Use React functional components.
+- Keep reusable behavior in `src/hooks/`.
+- Keep UI in components and network/business logic in hooks/services.
+- Use CSS variables and tokens from `design-system/quicksum.ai/MASTER.md`.
+- Keep the UI responsive and accessible.
+
+### Node backend
+- Keep business logic in `services/`, not in `routes/`.
+- Use centralized error handling in `middlewares/errorMiddleware.js`.
+- Use `utils/responseHandler.js` for consistent API responses.
+
+### AI backend
+- Keep routing in `app/routes/` and AI logic in `app/services/ai_service.py`.
+- Read config from `app/core/config.py`.
+
+---
+
+## Development commands
+
+- Frontend: `npm install` then `npm run dev` from repo root.
+- Node backend: `cd backend/node-backend && npm install && npm run dev`
+- AI backend: `cd backend/ai-backend && pip install -r requirements.txt && python run.py`
+
+---
+
+## Design system reference
+
+- Use `design-system/quicksum.ai/MASTER.md` as the authoritative UI guide.
+- Do not duplicate design system rules in code; follow them.
+
+---
+
+## Key constraints
+
+- Do not change endpoint contracts without coordination.
+- Do not hardcode environment values or API keys.
+- Do not add business logic to route definitions.
+- Keep frontend updates responsive and preserve file upload UX.
+- Keep frontend HTTP requests centralized in `frontend/src/services/api.js`.
+
+---
+
+## Notes for AI agents
+
+- Treat `AGENTS.md` as the canonical project guide.
+- The root `README.md` is primarily the default Vite template and should not be treated as the product spec.
+- Only rely on `design-system/quicksum.ai/MASTER.md` for styling rules.

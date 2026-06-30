@@ -6,5 +6,5 @@ router = APIRouter()
 
 @router.post("/summarize", response_model=SummarizeResponse)
 def summarize(req: SummarizeRequest):
-    result = summarize_text(req.text)
+    result = summarize_text(req.text, req.length)
     return {"summary": result}
