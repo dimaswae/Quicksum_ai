@@ -10,8 +10,10 @@ const LENGTH_OPTIONS = [
   { value: 'long', label: 'Panjang' },
 ];
 
+const DEMO_TEXT = `Menjaga kelestarian lingkungan bukan lagi sekadar pilihan, melainkan sebuah kebutuhan mendesak di tengah tantangan perubahan iklim global. Banyak dari kita merasa bingung harus mulai dari mana, padahal perubahan besar selalu dimulai dari langkah-langkah kecil yang konsisten dalam kehidupan sehari-hari.Langkah awal yang paling mudah diterapkan adalah mengurangi penggunaan plastik sekali pakai. Membiasakan diri membawa tas belanja sendiri dan botol minum (tumbler) dari rumah dapat mengurangi jumlah limbah yang mencemari lingkungan secara signifikan. Selain itu, pemilahan sampah rumah tangga antara organik dan anorganik menjadi fondasi penting agar sampah dapat didaur ulang dengan efektif.Di sektor konsumsi, kita bisa beralih ke konsep slow living yang lebih menghargai kualitas daripada kuantitas. Mulailah dengan membeli produk lokal guna memangkas jejak karbon dari proses distribusi. Mengurangi konsumsi berlebih dan mendonasikan barang yang tidak terpakai juga membantu menerapkan ekonomi sirkular yang minim limbah.Dalam hal mobilitas, cobalah untuk lebih sering menggunakan transportasi umum, bersepeda, atau berjalan kaki untuk jarak dekat. Pola ini tidak hanya menurunkan emisi karbon dari kendaraan bermotor, tetapi juga bermanfaat bagi kesehatan fisik.Perubahan gaya hidup ini membutuhkan kesadaran diri dan proses adaptasi yang tidak instan. Mulailah dari satu kebiasaan kecil setiap minggunya. Menanam pohon di pekarangan rumah atau menghemat penggunaan listrik merupakan bentuk kontribusi nyata. Ingatlah bahwa setiap tindakan ramah lingkungan yang kita lakukan akan sangat berarti bagi masa depan bumi. Bumi yang sehat adalah warisan terbaik yang bisa kita tinggalkan untuk generasi mendatang.`;
+
 export default function SummarizeForm() {
-  const [text, setText] = useState('');
+  const [text, setText] = useState(DEMO_TEXT);
   const [length, setLength] = useState('medium');
   const [activeTab, setActiveTab] = useState('text');
   const { result, isLoading, error, loadingMessage, summarize, reset } = useSummarize();

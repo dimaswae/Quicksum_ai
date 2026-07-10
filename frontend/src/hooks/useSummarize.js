@@ -8,8 +8,10 @@ const LOADING_STAGES = [
   { message: 'Menyiapkan hasil...', minDuration: 6000 },
 ];
 
+const DEMO_SUMMARY = `Menjaga lingkungan kini menjadi kebutuhan mendesak akibat perubahan iklim global. Kita bisa memulai perubahan besar dari langkah kecil yang konsisten.Kurangi plastik sekali pakai, pilah sampah, dan belilah produk lokal. Gunakan transportasi umum atau berjalan kaki untuk mengurangi emisi. Adaptasi ini butuh proses, namun setiap aksi nyata sangat berarti bagi bumi.`;
+
 export default function useSummarize() {
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState(DEMO_SUMMARY);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadingMessage, setLoadingMessage] = useState('');
