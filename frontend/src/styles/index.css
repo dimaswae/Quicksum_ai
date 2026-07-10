@@ -1,17 +1,17 @@
 @import url("https://fonts.googleapis.com/css2?family=Crimson+Text:wght@400;600;700&family=EB+Garamond:wght@400;500;600;700;800&display=swap");
 
 :root {
-  /* Color tokens — light mode */
-  --color-primary: #bbd5da;
-  --color-secondary: #dff1f1;
-  --color-cta: #bbd5da;
-  --color-background: #f5f5f5;
-  --color-text: #1f2937;
-  --color-text-muted: #6b7280;
-  --color-surface: #dff1f1;
-  --color-border: #bbd5da;
-  --color-error: #ff0000;
-  --color-success: #16a34a;
+  /* Color tokens — light mode — sourced from design-system/quicksum.ai/MASTER.md */
+  --color-primary: #0D9488;      /* Teal — main brand color */
+  --color-secondary: #14B8A6;    /* Teal lighter — secondary brand */
+  --color-cta: #F97316;          /* Orange — call-to-action / accent */
+  --color-background: #F0FDFA;   /* Teal-tinted page background */
+  --color-text: #134E4A;         /* Dark Teal — primary text */
+  --color-text-muted: #4B7B77;   /* Muted Teal — secondary text */
+  --color-surface: #FFFFFF;      /* Pure white card/panel surfaces */
+  --color-border: #99E6E0;       /* Soft Teal — borders & dividers */
+  --color-error: #DC2626;        /* Red — error states */
+  --color-success: #16a34a;      /* Green — success states */
 
   /* Spacing tokens */
   --space-xs: 4px;
@@ -36,15 +36,16 @@
 /* Dark mode overrides */
 :root[data-theme="dark"],
 .dark {
-  --color-primary: #6f9297;
-  --color-secondary: #1e292b;
-  --color-cta: #6f9297;
-  --color-background: #121212;
-  --color-surface: #1e292b;
-  --color-text: #f5f5f5;
-  --color-text-muted: #b8c8c9;
-  --color-border: #2c383a;
-  --color-error: #e57373;
+  --color-primary: #2DD4BF;      /* Teal lighter — more visible on dark bg */
+  --color-secondary: #0F766E;    /* Teal darker — secondary on dark */
+  --color-cta: #FB923C;          /* Orange slightly lightened for dark bg */
+  --color-background: #0D1F1E;   /* Very dark teal-black */
+  --color-surface: #132D2B;      /* Dark teal — cards & panels */
+  --color-text: #F0FDFA;         /* Near-white teal-tinted text */
+  --color-text-muted: #81C7C1;   /* Muted teal — secondary text on dark */
+  --color-border: #1F4744;       /* Dark teal border */
+  --color-error: #F87171;        /* Lightened red for dark mode */
+  --color-success: #4ADE80;      /* Lightened green for dark mode */
 }
 
 /* Base reset */

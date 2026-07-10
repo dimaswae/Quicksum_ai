@@ -1,4 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import * as pdfjsLib from 'pdfjs-dist';
+
+// Point PDF.js worker to its own bundled worker script (avoids Vite config changes)
+pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
+  'pdfjs-dist/build/pdf.worker.mjs',
+  import.meta.url,
+).toString();
 
 const MAX_SIZE = 5 * 1024 * 1024;
 const ALLOWED_TYPES = ['text/plain', 'application/pdf'];
@@ -40,7 +47,45 @@ export default function FileUpload({ onFileContent, disabled = false }) {
     }
   }, [disabled]);
 
-  const processFile = useCallback((file) => {
+  /**
+   * Extracts plain text from a File object.
+   * - .txt  → FileReader.readAsText (native, fast)
+   * - .pdf  → PDF.js binary decoder (page-by-page text extraction)
+   * @param {File} file
+   * @returns {Promise<string>} Extracted plain text
+   */
+  const extractTextFromFile = useCallback(async (file) => {
+    const ext = getExtension(file.name);
+
+    if (ext === '.pdf') {
+      // Read the PDF file as an ArrayBuffer, then parse with PDF.js
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      const pageTexts = [];
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        // Join each text item on the page, preserving paragraph spacing
+        const pageText = textContent.items
+          .map((item) => item.str)
+          .join(' ');
+        pageTexts.push(pageText);
+      }
+
+      return pageTexts.join('\n\n');
+    }
+
+    // Fallback: plain text files read directly as UTF-8
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = () => reject(new Error('Gagal membaca file.'));
+      reader.readAsText(file, 'UTF-8');
+    });
+  }, []);
+
+  const processFile = useCallback(async (file) => {
     setError(null);
 
     const validationError = validateFile(file);
@@ -50,18 +95,23 @@ export default function FileUpload({ onFileContent, disabled = false }) {
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = () => {
+    try {
+      const text = await extractTextFromFile(file);
+
+      if (!text || text.trim().length === 0) {
+        setError('Tidak ada teks yang dapat diekstrak dari file ini.');
+        setZoneState('error');
+        return;
+      }
+
       setFileInfo({ name: file.name, size: file.size });
       setZoneState('success');
-      onFileContent?.(reader.result);
-    };
-    reader.onerror = () => {
-      setError('Gagal membaca file.');
+      onFileContent?.(text);
+    } catch {
+      setError('Gagal membaca file. Pastikan file tidak rusak.');
       setZoneState('error');
-    };
-    reader.readAsText(file);
-  }, [onFileContent]);
+    }
+  }, [extractTextFromFile, onFileContent]);
 
   const handleFileChange = useCallback((e) => {
     const file = e.target.files?.[0];
